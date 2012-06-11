@@ -23,8 +23,143 @@
 \newcommand{\g}{\,|\,} 
 \newcommand{\norm}[1]{\left\|#1\right\|} 
 
-%% Title Page
+\begin{document}
+\begin{itemize}
+	\item ``LSPI is a model-free, off-policy method which can use efficiently (and reuse in each iteration) sample experiences collected in any manner.''
+\end{itemize}
 
+The state-action value function $Q^{\pi}(s,a)$ of any policy $\pi$ can be found by solving the Bellman equations:
+\[
+	Q^{\pi}(s,a)=\mathcal{R}(s,a)+\gamma\sum_{s'\in \mathcal{S}}\mathcal{P}(s,a,s')
+		\sum_{a'\in \mathcal{A}}\pi(a';s')Q^{\pi}(s',a').
+\]
+$\pi(a;s)$ is the probability that policy $\pi$ chooses action $a$ in state $s$. We can write this in matrix form:
+\[
+	Q^{\pi}=\mathcal{R}+\gamma\mathbf{P}\mathbf{\Pi}_{\pi}Q^{\pi}.
+\]
+\begin{itemize}
+	\item $Q^{\pi}$ and $\mathcal{R}$ are vectors of size $\abs{\mathcal{S}}\abs{\mathcal{A}}$.
+	\item $\mathbf{P}$ is a stochastic matrix of size $\abs{\mathcal{S}}\abs{\mathcal{A}}\times \mathcal{S}$ where
+		\[
+			\mathbf{P}\bigl((s,a),s'\bigr)=\mathcal{P}(s,a,s').
+		\]
+	\item $\mathbf{\Pi}_{\pi}$ is a stochastic matrix of size $\mathcal{S}\times \abs{\mathcal{S}}\abs{\mathcal{A}}$ that describes $\pi$:
+		\[
+			\mathbf{\Pi}_{\pi}\bigl(s',(s',a')\bigr)=\pi(a';s')
+		\]
+\end{itemize}
+
+Then we can find $Q^{\pi}$ by solving
+\[
+	(\mathbf{I}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi})Q^{\pi}=\mathcal{R}.
+\]
+
+We can also think of this as a fixed point of the Bellman operator $T_{\pi}$:
+\[
+	(T_{\pi}Q)(s,a)=\mathcal{R}(s,a)+
+	\gamma\sum_{s'\in \mathcal{S}}
+	\mathcal{P}(s,a,s')\sum_{a'\in \mathcal{A}}
+	\pi(a';s')Q(s',a').
+\]
+
+\subsubsection*{Example} % (fold)
+\label{ssub:example}
+Recall Puterman's favorite 2-state Markov chain on Page 34 of \emph{Markov Decision Processes}. Two states, $s_{1}$ and $s_{2}$, and two actions, $a_{1}$ and $a_{2}$. Then:
+\[
+	Q^{\pi}=\bra{
+		Q^{\pi}(s_{1},a_{1}),\; 
+		Q^{\pi}(s_{1},a_{2}),\; 
+		Q^{\pi}(s_{2},a_{1}),\; 
+		Q^{\pi}(s_{2},a_{2})}^{T}
+\]
+\[
+	\mathcal{R}=\bra{
+		5,\; 
+		10,\; 
+		-1,\; 
+		-\infty}^{T},
+\]and
+\[
+	\mathbf{P}=\bordermatrix{
+		& s_{1} & s_{2} \cr
+		(s_{1},a_{1}) &.5&.5   \cr
+		(s_{1},a_{2}) &0&1   \cr
+		(s_{2},a_{1}) &0&1   \cr
+		(s_{2},a_{2}) &0&1
+	}
+\]
+We construct the following policy:
+\[
+	\mathbf{\Pi}_{\pi}=\bordermatrix{
+	& (s_{1},a_{1}) & (s_{1},a_{2}) & (s_{2},a_{1}) & (s_{2},a_{2}) \cr
+	s_{1} &.5&.5&0&0\cr
+	s_{2} &0&0&1&0\cr
+	}.
+\]
+This results in 
+\[
+	\mathbf{I}-\gamma \mathbf{P}\Pi_{\pi}=\left(
+	\begin{matrix}
+	 1-0.25 \gamma  & -0.25 \gamma  & -0.5 \gamma  & 0. \\
+	 0. & 1 & -\gamma  & 0. \\
+	 0. & 0. & 1- \gamma  & 0. \\
+	 0. & 0. & -\gamma  & 1
+	\end{matrix}
+	\right)
+\]
+and we can solve $(\mathbf{I}-\gamma \mathbf{P}\Pi_{\pi})Q^{\pi}=\mathcal{R}$  for any value of $\gamma$ to obtain $Q^{\pi}$. 
+
+\subsection*{Linear Architecture} % (fold)
+\label{sec:linear_architecture}
+We now consider approximating $Q^{\pi}$ by a $\hat{Q}^{\pi}$, a linear combination of basis functions.
+Suppose we have $\phi_{j}:\mathcal{S}\times\mathcal{A}\rightarrow \R$ for $j=1,2,\ldots,k$. 
+Define $\phi(s,a)$ to be a column vector of size $k$:
+\[
+	\phi(s,a)=\left(\begin{smallmatrix}
+		\phi_{1}(s,a) \\ \cdots \\ \phi_{1}(s,a) \\ \cdots \\ \phi_{k}(s,a)
+	\end{smallmatrix}\right).
+\]
+If $w_{j}^{\pi}$ is the weight for each function, we can write 
+\[
+	\hat{Q}^{\pi}=\mathbf{\Phi}w^{\pi}.
+\]
+where $w^{\pi}$ is a column vector of length $k$ with all parameters and $\mathbf{\Phi}$ is a ($\abs{\mathcal{S}}\abs{\mathcal{A}}\times k$) matrix of the form
+\[
+	\mathbf{\Phi}=\begin{pmatrix}
+		\phi(s_{1},a_{1})^{T}\\
+		\ldots\\
+		\phi(s,a)^{T}\\
+		\ldots\\
+		\phi(s_{\abs{\mathcal{S}}},a_{\abs{\mathcal{A}}})^{T}\\
+	\end{pmatrix}.
+\]
+
+% section linear_architecture (end)
+
+\subsection*{Least-Squares Fixed-Point Approximation} % (fold)
+\label{sub:least_squares_fixed_point_approximation}
+
+Recall that $T_{\pi}Q^{\pi}=Q^{\pi}$. We could approximate the value function by finding a fixed point in the space of the linear approximations:
+\[
+	T_{\pi}\hat{Q}^{\pi}= \hat{Q}^{\pi}.
+\]
+However, a fixed point may not even exist in this space. 
+
+We want to find the weights $w^{\pi}$ that minimizes 
+$$\norm{T_{\pi}\hat{Q}^{\pi}-\hat{Q}^{\pi}}_{2}
+	=\norm{T_{\pi}(\mathbf{\Phi}w^{\pi})-\mathbf{\Phi}w^{\pi}}_{2}$$.
+
+
+% Recall that for the inconsistent linear system $\mathbf{A}\mathbf{x}=\mathbf{b}$, the least squares solution $\hat{\mathbf{x}}$ is a solution to
+% \(
+% 	\mathbf{A}^{T}\mathbf{A}\hat{\mathbf{x}}=\mathbf{A}^{T}\mathbf{b}.
+% \) 
+% And if $	(\mathbf{A}^{T}\mathbf{A})^{-1}$ exists, $\hat{\mathbf{x}}=	(\mathbf{A}^{T}\mathbf{A})^{-1}\mathbf{A}^{T}\mathbf{b}$.
+% In this problem, the least squares solution 
+% $\mathbf{\Phi}$
+
+
+% subsection least_squares_fixed_point_approximation (end)
 
 
 \end{document} 
