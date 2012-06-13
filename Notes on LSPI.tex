@@ -2,7 +2,7 @@
 
 
 \usepackage{amsmath,amssymb, amsfonts, amsthm} 
-\usepackage{setspace, pdfsync, tocloft} 
+\usepackage{setspace, pdfsync, tocloft, mathtools} 
 \usepackage[colorinlistoftodos, textwidth=4cm, shadow]{todonotes} 
 \newcommand{\ntodo}[2][]{\todo[#1]{\thesubsection{}. #2}}
 
@@ -70,14 +70,14 @@ Recall Puterman's favorite 2-state Markov chain on Page 34 of \emph{Markov Decis
 		Q^{\pi}(s_{1},a_{1}),\; 
 		Q^{\pi}(s_{1},a_{2}),\; 
 		Q^{\pi}(s_{2},a_{1}),\; 
-		Q^{\pi}(s_{2},a_{2})}^{T}
+		Q^{\pi}(s_{2},a_{2})}^\intercal
 \]
 \[
 	\mathcal{R}=\bra{
 		5,\; 
 		10,\; 
 		-1,\; 
-		-\infty}^{T},
+		-\infty}^\intercal,
 \]and
 \[
 	\mathbf{P}=\bordermatrix{
@@ -126,11 +126,11 @@ If $w_{j}^{\pi}$ is the weight for each function, we can write
 where $w^{\pi}$ is a column vector of length $k$ with all parameters and $\mathbf{\Phi}$ is a ($\abs{\mathcal{S}}\abs{\mathcal{A}}\times k$) matrix of the form
 \[
 	\mathbf{\Phi}=\begin{pmatrix}
-		\phi(s_{1},a_{1})^{T}\\
+		\phi(s_{1},a_{1})^\intercal\\
 		\ldots\\
-		\phi(s,a)^{T}\\
+		\phi(s,a)^\intercal\\
 		\ldots\\
-		\phi(s_{\abs{\mathcal{S}}},a_{\abs{\mathcal{A}}})^{T}\\
+		\phi(s_{\abs{\mathcal{S}}},a_{\abs{\mathcal{A}}})^\intercal\\
 	\end{pmatrix}.
 \]
 
@@ -144,17 +144,111 @@ Recall that $T_{\pi}Q^{\pi}=Q^{\pi}$. We could approximate the value function by
 	T_{\pi}\hat{Q}^{\pi}= \hat{Q}^{\pi}.
 \]
 However, a fixed point may not even exist in this space. 
+\todo[inline]{Explain why this is what we want.}
+``Considering the orthogonal projection $\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}$ which minimizes the $L_{2}$ norm, we seek an approximate value function $\hat{Q}^{\pi}$ that is invariant under one application of the Bellman operator $T_{\pi}$ followed by orthogonal projection:''
+\begin{align*}
+	\hat{Q}^{\pi}&=\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}(T_{\pi}\hat{Q}^{\pi})\\
+	&= \mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+		(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\hat{Q}^{\pi}).
+\end{align*} 
+We can manipulate this into solving a linear system for the weights:
+\begin{align*}
+	\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+		(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\hat{Q}^{\pi})&=\hat{Q}^{\pi}\\	\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+				(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})&=\mathbf{\Phi}w^{\pi}\\
+		\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+				(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-\mathbf{\Phi}w^{\pi}&=0\\
+		\mathbf{\Phi}\parens{(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+						(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-w^{\pi}}&=0\\
+		\shortintertext{Because $\mathbf{\Phi}$ has linearly independent columns (I think):}
+		(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+						(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-w^{\pi}&=0\\
+		(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+						(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})&=w^{\pi}\\
+		\mathbf{\Phi}^{\mathbf{T}}(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})&=(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})w^{\pi}\\
+		\mathbf{\Phi}^{\mathbf{T}}\mathcal{R}+\mathbf{\Phi}^{\mathbf{T}}(\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})w^{\pi}&=0\\
+		\mathbf{\Phi}^{\mathbf{T}}(\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi}-\mathbf{\Phi})w^{\pi}&=
+			-\mathbf{\Phi}^{\mathbf{T}}\mathcal{R}\\
+		\underbrace{\mathbf{\Phi}^{\mathbf{T}}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}
+		}_{(k\times k)}
+		w^{\pi}&=
+		\underbrace{\mathbf{\Phi}^{\mathbf{T}}\mathcal{R}}_{(k\times 1)}\\
+		\end{align*}
 
-We want to find the weights $w^{\pi}$ that minimizes 
-$$\norm{T_{\pi}\hat{Q}^{\pi}-\hat{Q}^{\pi}}_{2}
-	=\norm{T_{\pi}(\mathbf{\Phi}w^{\pi})-\mathbf{\Phi}w^{\pi}}_{2}$$.
+Thus for a policy matrix $\mathbf{\Pi}_{\pi}$, we can find the least-squares weights minimizing the $L_{2}$ distance between $\hat{Q}$ and the projection of  $T_{\pi}\hat{Q}$ onto the $\mathbf{\Phi}$ plane:
+\[
+	w^{\pi}=\parens{\mathbf{\Phi}^{\mathbf{T}}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}}^{-1}\mathbf{\Phi}^{\mathbf{T}}\mathcal{R},
+\]
+assuming the inverse exists. 
+Koller and Parr (2000) showed this inverse exists for all but finitely many values of $\gamma$. (The proof follows from the determinant of $	\mathbf{\Phi}^{\mathbf{T}}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}$ being a polynomial of $\gamma$, and the polynomial only having a finite number of roots.)
+
+We can also use the $\abs{\mathcal{S}}\abs{\mathcal{A}}\times \abs{\mathcal{S}}\abs{\mathcal{A}}$ diagonal matrix $\Delta_{\mu}$ weight the projection matrix according to  $\mu(s,a)$:
+\[
+	w^{\pi}=\parens{\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}}^{-1}\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\mathcal{R}.
+\]
+Letting $\mathbf{A}=\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}$ and $b=\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\mathcal{R}$, we can solve $w^\intercal$ by solving $k\times k$ linear system:
+\[
+	\mathbf{A}w^{\pi}=b.
+\]
+The linear system will often be tractable, but $\mathbf{A}$ and $b$ are likely unknown, because $\mathbf{P}$ and $\mathcal{R}$ are unknown or too large.
+
+\subsection*{LSTD$Q$} % (fold)
+\label{sub:lstd_q_}
+
+% subsection lstd_q_ (end)
+
+We can leave the matrix notation to get
+\begin{align*}
+	\mathbf{A}&=\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}\\
+	&=\sum_{s\in\mathcal{S}}\sum_{a\in\mathcal{A}}\phi(s,a)\mu(s,a)
+		\parens{\phi(s,a)-\gamma\sum_{s'\in \mathcal{S}}\mathcal{P}(s,a,s')\phi(s',\pi(s'))}^\intercal
+		\shortintertext{(the outer product forms a matrix)}
+		&=\sum_{s\in\mathcal{S}}\sum_{a\in\mathcal{A}}\mu(s,a)
+		\sum_{s'\in\mathcal{S}}\mathcal{P}(s,a,s')\Biggl[
+		\phi(s,a)\Bigl(\phi(s,a)-\gamma\phi\bigl(s',\pi\left(s'\right)\bigr)\Bigr)^{\intercal}
+		\Biggr]
+\end{align*}
+and
+\begin{align*}
+	b=\mathbf{\Phi}^{\intercal}\Delta_{\mu}\mathcal{R}
+	&=\sum_{s\in\mathcal{S}}\sum_{a\in\mathcal{A}}\phi(s,a)\mu(s,a)\sum_{s'\in \mathcal{S}}
+		\mathcal{P}(s,a,s')R(s,a,s')\\
+	&=\sum_{s\in\mathcal{S}}\sum_{a\in\mathcal{A}}\mu(s,a)\sum_{s'\in \mathcal{S}}
+		\mathcal{P}(s,a,s')\bra{\phi(s,a)R(s,a,s')}
+\end{align*}
+The matrix $\mathbf{A}$ is the sum of many rank one (outer product) matrices of the form
+\[
+	\phi(s,a)\Bigl(\phi(s,a)-\gamma\phi\bigl(s',\pi\left(s'\right)\bigr)\Bigr)^{\intercal}
+\]
+and $b$ the sum of vectors of the form
+\[
+	\phi(s,a)R(s,a,s')
+\]
+summed over every $(s,a,s')$ pair and weighted by $\mu(s,a)$  and $\mathcal{P}(s,a,s')$.
+We can approximate $\mathbf{A}$ and $b$ by sampling terms fromt his summation. ``For unbiased sampling, $s$ and $a$ must be drawn jointly from $\mu$, and $s'$ must be drawn from $\mathcal{P}(s,a,s')$.''
+If a finite set of samples 
+\[
+	D=\set{(s_{i},a_{i},r_{i},s_{i}')\g i=1,2,\ldots,L}
+\]
+is sampled according to $\mu_{D}$, $\mathbf{A}$ and $b$ can be approximated according by
+\begin{align*}
+	\tilde{\mathbf{A}}&=\frac{1}{L}\sum_{i=1}^{L}\bra{\phi(s_{i},a_{i})\Bigl(\phi(s_{i},a_{i})-\gamma\phi\bigl(s_{i}',\pi\left(s_{i}'\right)\bigr)\Bigr)^{\intercal}}\\
+	\tilde{b}&=\frac{1}{L}\sum_{i=1}^{L}\bra{\phi(s_{i},a_{i})r_{i}}.
+\end{align*}
+
+This method for approximating $\tilde{w}^{\pi}$ is what Lagoudakis and Parr called LSTD$Q$. They also use the Sherman-Morrison formula to provide an algorithm that maintains the inverse of $A$ at each step. 
+
+
+% We want to find the weights $w^{\pi}$ that minimizes 
+% $$\norm{T_{\pi}\hat{Q}^{\pi}-\hat{Q}^{\pi}}_{2}
+% 	=\norm{T_{\pi}(\mathbf{\Phi}w^{\pi})-\mathbf{\Phi}w^{\pi}}_{2}$$.
 
 
 % Recall that for the inconsistent linear system $\mathbf{A}\mathbf{x}=\mathbf{b}$, the least squares solution $\hat{\mathbf{x}}$ is a solution to
 % \(
-% 	\mathbf{A}^{T}\mathbf{A}\hat{\mathbf{x}}=\mathbf{A}^{T}\mathbf{b}.
+% 	\mathbf{A}^\intercal\mathbf{A}\hat{\mathbf{x}}=\mathbf{A}^\intercal\mathbf{b}.
 % \) 
-% And if $	(\mathbf{A}^{T}\mathbf{A})^{-1}$ exists, $\hat{\mathbf{x}}=	(\mathbf{A}^{T}\mathbf{A})^{-1}\mathbf{A}^{T}\mathbf{b}$.
+% And if $	(\mathbf{A}^\intercal\mathbf{A})^{-1}$ exists, $\hat{\mathbf{x}}=	(\mathbf{A}^\intercal\mathbf{A})^{-1}\mathbf{A}^\intercal\mathbf{b}$.
 % In this problem, the least squares solution 
 % $\mathbf{\Phi}$
 
