@@ -22,7 +22,7 @@
 \newcommand{\Z}{\mathbb{Z}} 
 \newcommand{\g}{\,|\,} 
 \newcommand{\norm}[1]{\left\|#1\right\|} 
-
+\DeclareMathOperator*{\argmax}{arg\,max}
 \begin{document}
 \begin{itemize}
 	\item ``LSPI is a model-free, off-policy method which can use efficiently (and reuse in each iteration) sample experiences collected in any manner.''
@@ -238,22 +238,19 @@ is sampled according to $\mu_{D}$, $\mathbf{A}$ and $b$ can be approximated acco
 
 This method for approximating $\tilde{w}^{\pi}$ is what Lagoudakis and Parr called LSTD$Q$. They also use the Sherman-Morrison formula to provide an algorithm that maintains the inverse of $A$ at each step. 
 
+\subsection*{LSPI} % (fold)
+\label{sub:lspi}
 
-% We want to find the weights $w^{\pi}$ that minimizes 
-% $$\norm{T_{\pi}\hat{Q}^{\pi}-\hat{Q}^{\pi}}_{2}
-% 	=\norm{T_{\pi}(\mathbf{\Phi}w^{\pi})-\mathbf{\Phi}w^{\pi}}_{2}$$.
+Given some policy and basis functions, we compute the approximate policy
+\[
+	\hat{Q}(s,a;\,w)=\sum_{i=1}^{k}\phi_{i}(s,a)w_{i}=\phi(s,a)^{\intercal}w.
+\]
+We can then construct a greedy policy $\pi$ from this by:
+\[
+	\pi(s)=\argmax_{a\in\mathcal{A}}\hat{Q}(s,a).
+\]
+From $\pi$, we can repeat the same process \emph{reusing the same samples to compute $w$ each time}! We repeat this process until the policy (approximately) stops changing.
 
-
-% Recall that for the inconsistent linear system $\mathbf{A}\mathbf{x}=\mathbf{b}$, the least squares solution $\hat{\mathbf{x}}$ is a solution to
-% \(
-% 	\mathbf{A}^\intercal\mathbf{A}\hat{\mathbf{x}}=\mathbf{A}^\intercal\mathbf{b}.
-% \) 
-% And if $	(\mathbf{A}^\intercal\mathbf{A})^{-1}$ exists, $\hat{\mathbf{x}}=	(\mathbf{A}^\intercal\mathbf{A})^{-1}\mathbf{A}^\intercal\mathbf{b}$.
-% In this problem, the least squares solution 
-% $\mathbf{\Phi}$
-
-
-% subsection least_squares_fixed_point_approximation (end)
-
+% subsection lspi (end)
 
 \end{document} 
