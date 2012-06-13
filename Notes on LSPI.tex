@@ -6,7 +6,7 @@
 \usepackage[colorinlistoftodos, textwidth=4cm, shadow]{todonotes} 
 \newcommand{\ntodo}[2][]{\todo[#1]{\thesubsection{}. #2}}
 
-\doublespacing
+\onehalfspacing
 
 %% Some useful commands:
 \newcommand{\set}[1]{\left\{#1\right\}} 
@@ -28,7 +28,7 @@
 	\item ``LSPI is a model-free, off-policy method which can use efficiently (and reuse in each iteration) sample experiences collected in any manner.''
 \end{itemize}
 
-The state-action value function $Q^{\pi}(s,a)$ of any policy $\pi$ can be found by solving the Bellman equations:
+The state-action value function $Q^{\pi}(s,a)$ of any policy $\pi$, including a randomized policy, can be found by solving the Bellman equations:
 \[
 	Q^{\pi}(s,a)=\mathcal{R}(s,a)+\gamma\sum_{s'\in \mathcal{S}}\mathcal{P}(s,a,s')
 		\sum_{a'\in \mathcal{A}}\pi(a';s')Q^{\pi}(s',a').
@@ -144,49 +144,68 @@ Recall that $T_{\pi}Q^{\pi}=Q^{\pi}$. We could approximate the value function by
 	T_{\pi}\hat{Q}^{\pi}= \hat{Q}^{\pi}.
 \]
 However, a fixed point may not even exist in this space. 
-\todo[inline]{Explain why this is what we want.}
-``Considering the orthogonal projection $\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}$ which minimizes the $L_{2}$ norm, we seek an approximate value function $\hat{Q}^{\pi}$ that is invariant under one application of the Bellman operator $T_{\pi}$ followed by orthogonal projection:''
+
+Recall that if $\mathcal{M}$ is an $r$-dimensional subspace of $\R^{N}$, $M_{n\times r}$ is a basis for $\mathcal{M}$, and
+\[
+	P_{\mathcal{M}}=\mathbf{M}(\mathbf{M}^{\intercal}\mathbf{M})^{-1}\mathbf{M}^{\intercal},
+\]
+then $P_{\mathcal{M}}$ is the unique orthogonal projector onto $\mathcal{M}$. 
+For any $v=m+n\in \R^{n}$, where $m\in \mathcal{M}$ and $n\in \mathcal{M}^{\perp}$, $P_{\mathcal{M}}v=m$.
+
+Also, for vector $b\in \R^{n}$,
+\[
+	\min_{m\in \mathcal{M}}\norm{b-m}_{2}=\norm{b-\mathbf{P}_{\mathcal{M}}b}_{2}.
+\]
+That is, the vector in $\mathcal{M}$ closest to $b$ is $\mathbf{P}_{\mathcal{M}}b$.
+
+We might hope to find a pseudo-fixed point of the Bellman operator on an approximation of the value function.
+We want a value function approximation $\hat{Q}^{\pi}$ so that if we apply the Bellman operator (which may be outside the approximation space), then \emph{project} this into the approximation space, we get the original value function.
+
+That is, we want weights $w^{\pi}$ so that
+\begin{align}\nonumber
+	\hat{Q}^{\pi}&=\mathbf{\Phi}(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal(T_{\pi}\hat{Q}^{\pi})\\
+	&= \mathbf{\Phi}(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal
+		(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\hat{Q}^{\pi}).\label{eq:fixedpoint}
+\end{align} 
+In effect, this finds the weights so that the Bellman operator is perpendicular to the approximation space.
+
+
+We can manipulate \eqref{eq:fixedpoint} into solving a linear system for the weights:
 \begin{align*}
-	\hat{Q}^{\pi}&=\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}(T_{\pi}\hat{Q}^{\pi})\\
-	&= \mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
-		(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\hat{Q}^{\pi}).
-\end{align*} 
-We can manipulate this into solving a linear system for the weights:
-\begin{align*}
-	\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
-		(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\hat{Q}^{\pi})&=\hat{Q}^{\pi}\\	\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+	\mathbf{\Phi}(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal
+		(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\hat{Q}^{\pi})&=\hat{Q}^{\pi}\\	\mathbf{\Phi}(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal
 				(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})&=\mathbf{\Phi}w^{\pi}\\
-		\mathbf{\Phi}(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+		\mathbf{\Phi}(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal
 				(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-\mathbf{\Phi}w^{\pi}&=0\\
-		\mathbf{\Phi}\parens{(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+		\mathbf{\Phi}\parens{(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal
 						(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-w^{\pi}}&=0\\
 		\shortintertext{Because $\mathbf{\Phi}$ has linearly independent columns (I think):}
-		(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+		(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal
 						(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-w^{\pi}&=0\\
-		(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})^{-1}\mathbf{\Phi}^{\mathbf{T}}
+		(\mathbf{\Phi}^\intercal\mathbf{\Phi})^{-1}\mathbf{\Phi}^\intercal
 						(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})&=w^{\pi}\\
-		\mathbf{\Phi}^{\mathbf{T}}(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})&=(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})w^{\pi}\\
-		\mathbf{\Phi}^{\mathbf{T}}\mathcal{R}+\mathbf{\Phi}^{\mathbf{T}}(\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-(\mathbf{\Phi}^{\mathbf{T}}\mathbf{\Phi})w^{\pi}&=0\\
-		\mathbf{\Phi}^{\mathbf{T}}(\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi}-\mathbf{\Phi})w^{\pi}&=
-			-\mathbf{\Phi}^{\mathbf{T}}\mathcal{R}\\
-		\underbrace{\mathbf{\Phi}^{\mathbf{T}}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}
+		\mathbf{\Phi}^\intercal(\mathcal{R}+\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})&=(\mathbf{\Phi}^\intercal\mathbf{\Phi})w^{\pi}\\
+		\mathbf{\Phi}^\intercal\mathcal{R}+\mathbf{\Phi}^\intercal(\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi})-(\mathbf{\Phi}^\intercal\mathbf{\Phi})w^{\pi}&=0\\
+		\mathbf{\Phi}^\intercal(\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}w^{\pi}-\mathbf{\Phi})w^{\pi}&=
+			-\mathbf{\Phi}^\intercal\mathcal{R}\\
+		\underbrace{\mathbf{\Phi}^\intercal\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}
 		}_{(k\times k)}
 		w^{\pi}&=
-		\underbrace{\mathbf{\Phi}^{\mathbf{T}}\mathcal{R}}_{(k\times 1)}\\
+		\underbrace{\mathbf{\Phi}^\intercal\mathcal{R}}_{(k\times 1)}\\
 		\end{align*}
 
 Thus for a policy matrix $\mathbf{\Pi}_{\pi}$, we can find the least-squares weights minimizing the $L_{2}$ distance between $\hat{Q}$ and the projection of  $T_{\pi}\hat{Q}$ onto the $\mathbf{\Phi}$ plane:
 \[
-	w^{\pi}=\parens{\mathbf{\Phi}^{\mathbf{T}}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}}^{-1}\mathbf{\Phi}^{\mathbf{T}}\mathcal{R},
+	w^{\pi}=\parens{\mathbf{\Phi}^\intercal\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}}^{-1}\mathbf{\Phi}^\intercal\mathcal{R},
 \]
 assuming the inverse exists. 
-Koller and Parr (2000) showed this inverse exists for all but finitely many values of $\gamma$. (The proof follows from the determinant of $	\mathbf{\Phi}^{\mathbf{T}}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}$ being a polynomial of $\gamma$, and the polynomial only having a finite number of roots.)
+Koller and Parr (2000) showed this inverse exists for all but finitely many values of $\gamma$. (The proof follows from the determinant of $	\mathbf{\Phi}^\intercal\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}$ being a polynomial of $\gamma$, and the polynomial only having a finite number of roots.)
 
 We can also use the $\abs{\mathcal{S}}\abs{\mathcal{A}}\times \abs{\mathcal{S}}\abs{\mathcal{A}}$ diagonal matrix $\Delta_{\mu}$ weight the projection matrix according to  $\mu(s,a)$:
 \[
-	w^{\pi}=\parens{\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}}^{-1}\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\mathcal{R}.
+	w^{\pi}=\parens{\mathbf{\Phi}^\intercal\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}}^{-1}\mathbf{\Phi}^\intercal\Delta_{\mu}\mathcal{R}.
 \]
-Letting $\mathbf{A}=\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}$ and $b=\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\mathcal{R}$, we can solve $w^\intercal$ by solving $k\times k$ linear system:
+Letting $\mathbf{A}=\mathbf{\Phi}^\intercal\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}$ and $b=\mathbf{\Phi}^\intercal\Delta_{\mu}\mathcal{R}$, we can solve $w^\intercal$ by solving $k\times k$ linear system:
 \[
 	\mathbf{A}w^{\pi}=b.
 \]
@@ -199,7 +218,7 @@ The linear system will often be tractable, but $\mathbf{A}$ and $b$ are likely u
 
 We can leave the matrix notation to get
 \begin{align*}
-	\mathbf{A}&=\mathbf{\Phi}^{\mathbf{T}}\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}\\
+	\mathbf{A}&=\mathbf{\Phi}^\intercal\Delta_{\mu}\parens{\mathbf{\Phi}-\gamma \mathbf{P}\mathbf{\Pi}_{\pi}\mathbf{\Phi}}\\
 	&=\sum_{s\in\mathcal{S}}\sum_{a\in\mathcal{A}}\phi(s,a)\mu(s,a)
 		\parens{\phi(s,a)-\gamma\sum_{s'\in \mathcal{S}}\mathcal{P}(s,a,s')\phi(s',\pi(s'))}^\intercal
 		\shortintertext{(the outer product forms a matrix)}
