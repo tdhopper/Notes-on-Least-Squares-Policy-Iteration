@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     11871,        375]
-NotebookOptionsPosition[     10768,        337]
-NotebookOutlinePosition[     11147,        354]
-CellTagsIndexPosition[     11104,        351]
+NotebookDataLength[     11841,        374]
+NotebookOptionsPosition[     10703,        335]
+NotebookOutlinePosition[     11082,        352]
+CellTagsIndexPosition[     11039,        349]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -60,6 +60,20 @@ Cell[BoxData[
  CellChangeTimes->{{3.549027671380589*^9, 3.549027673602169*^9}, 
    3.549028542017205*^9}],
 
+Cell["Argmax utility function", "Text",
+ CellChangeTimes->{{3.5490299308606997`*^9, 3.549029932229361*^9}, {
+  3.549029974052063*^9, 3.549029975779817*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"argmax", "[", "l_List", "]"}], ":=", 
+  RowBox[{
+   RowBox[{"Position", "[", 
+    RowBox[{"l", ",", 
+     RowBox[{"Max", "[", "l", "]"}]}], "]"}], "\[LeftDoubleBracket]", 
+   RowBox[{"1", ",", "1"}], "\[RightDoubleBracket]"}]}]], "Input",
+ CellChangeTimes->{{3.549029933170105*^9, 3.549029972663869*^9}}],
+
 Cell["\<\
 Function to uniformly sample a single (state, action, \
 state\[CloseCurlyQuote], reward) vector from the model\
@@ -67,47 +81,45 @@ state\[CloseCurlyQuote], reward) vector from the model\
  CellChangeTimes->{{3.549029246738194*^9, 3.549029271970358*^9}}],
 
 Cell[BoxData[
- RowBox[{"\[IndentingNewLine]", 
-  RowBox[{"sample", ":=", 
-   RowBox[{"Module", "[", 
+ RowBox[{"sample", ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"mat", ",", "state1", ",", "r", ",", "state2", ",", "action"}], 
+     "}"}], ",", "\[IndentingNewLine]", 
     RowBox[{
-     RowBox[{"{", 
-      RowBox[{"mat", ",", "state1", ",", "r", ",", "state2", ",", "action"}], 
-      "}"}], ",", "\[IndentingNewLine]", 
-     RowBox[{
-      RowBox[{"action", "=", 
-       RowBox[{"RandomChoice", "[", 
-        RowBox[{"{", 
-         RowBox[{"0", ",", "1"}], "}"}], "]"}]}], ";", "\[IndentingNewLine]", 
-      
-      RowBox[{"mat", "=", 
-       RowBox[{"If", "[", 
-        RowBox[{
-         RowBox[{"action", "\[Equal]", "0"}], ",", "L", ",", "R"}], "]"}]}], 
-      ";", "\[IndentingNewLine]", 
-      RowBox[{"state1", "=", 
-       RowBox[{"RandomInteger", "[", 
-        RowBox[{"{", 
-         RowBox[{"1", ",", "4"}], "}"}], "]"}]}], ";", "\[IndentingNewLine]", 
-      
-      RowBox[{"state2", "=", 
-       RowBox[{"RandomChoice", "[", 
-        RowBox[{
-         RowBox[{
-         "mat", "\[LeftDoubleBracket]", "state1", "\[RightDoubleBracket]"}], 
-         "\[Rule]", 
-         RowBox[{"{", 
-          RowBox[{"1", ",", "2", ",", "3", ",", "4"}], "}"}]}], "]"}]}], ";", 
-      "\[IndentingNewLine]", 
-      RowBox[{"r", "=", 
+     RowBox[{"action", "=", 
+      RowBox[{"RandomChoice", "[", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", "1"}], "}"}], "]"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"mat", "=", 
+      RowBox[{"If", "[", 
        RowBox[{
-       "reward", "\[LeftDoubleBracket]", "state1", 
-        "\[RightDoubleBracket]"}]}], ";", "\[IndentingNewLine]", 
-      RowBox[{"{", 
-       RowBox[{"state1", ",", "action", ",", "state2", ",", "r"}], "}"}]}]}], 
-    "\[IndentingNewLine]", "]"}]}]}]], "Input",
+        RowBox[{"action", "\[Equal]", "0"}], ",", "L", ",", "R"}], "]"}]}], 
+     ";", "\[IndentingNewLine]", 
+     RowBox[{"state1", "=", 
+      RowBox[{"RandomInteger", "[", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", "4"}], "}"}], "]"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"state2", "=", 
+      RowBox[{"RandomChoice", "[", 
+       RowBox[{
+        RowBox[{
+        "mat", "\[LeftDoubleBracket]", "state1", "\[RightDoubleBracket]"}], 
+        "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", "2", ",", "3", ",", "4"}], "}"}]}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"r", "=", 
+      RowBox[{
+      "reward", "\[LeftDoubleBracket]", "state1", "\[RightDoubleBracket]"}]}],
+      ";", "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{"state1", ",", "action", ",", "state2", ",", "r"}], "}"}]}]}], 
+   "\[IndentingNewLine]", "]"}]}]], "Input",
  CellChangeTimes->{{3.549022294935418*^9, 3.549022526709992*^9}, {
-   3.5490278523398733`*^9, 3.5490278532898273`*^9}, 3.549028075313202*^9}],
+   3.5490278523398733`*^9, 3.5490278532898273`*^9}, 3.549028075313202*^9, 
+   3.549029927897008*^9}],
 
 Cell["\<\
 Basis function vector for state, action pair\
@@ -177,31 +189,27 @@ Cell[BoxData[{
         "pol", "\[LeftDoubleBracket]", "state2", "\[RightDoubleBracket]"}]}], 
        "]"}]}]}], "]"}]}]}], "\[IndentingNewLine]", 
  RowBox[{
+  RowBox[{
+   RowBox[{"A", "[", 
+    RowBox[{"samples_", ",", "pol_"}], "]"}], ":=", 
+   RowBox[{
+    FractionBox["1", 
+     RowBox[{"Length", "[", "samples", "]"}]], 
+    RowBox[{"Total", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"A1", "[", 
+        RowBox[{"#", ",", "pol"}], "]"}], "&"}], "/@", "samples"}], "]"}]}]}],
+   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
   RowBox[{"b1", "[", 
    RowBox[{"{", 
     RowBox[{"state1_", ",", "action_", ",", "state2_", ",", "r_"}], "}"}], 
    "]"}], ":=", 
   RowBox[{
    RowBox[{"\[Phi]", "[", 
-    RowBox[{"state1", ",", "action"}], "]"}], "r"}]}]}], "Input",
- CellChangeTimes->{{3.5490275903694773`*^9, 3.549027724652392*^9}, {
-   3.549027794650572*^9, 3.5490278214166203`*^9}, {3.549028212012147*^9, 
-   3.549028219450778*^9}, {3.549028441524914*^9, 3.54902847858762*^9}, 
-   3.5490285116455927`*^9}],
-
-Cell[BoxData[{
- RowBox[{
-  RowBox[{"A", "[", 
-   RowBox[{"samples_", ",", "pol_"}], "]"}], ":=", 
-  RowBox[{
-   FractionBox["1", 
-    RowBox[{"Length", "[", "samples", "]"}]], 
-   RowBox[{"Total", "[", 
-    RowBox[{
-     RowBox[{
-      RowBox[{"A1", "[", 
-       RowBox[{"#", ",", "pol"}], "]"}], "&"}], "/@", "samples"}], 
-    "]"}]}]}], "\[IndentingNewLine]", 
+    RowBox[{"state1", ",", "action"}], "]"}], 
+   "r"}]}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"b", "[", "samples_", "]"}], ":=", 
   RowBox[{
@@ -209,11 +217,10 @@ Cell[BoxData[{
     RowBox[{"Length", "[", "samples", "]"}]], 
    RowBox[{"Total", "[", 
     RowBox[{"b1", "/@", "samples"}], "]"}]}]}]}], "Input",
- CellChangeTimes->{{3.549027728104364*^9, 3.549027774121071*^9}, {
-  3.549027828183531*^9, 3.54902782967936*^9}, {3.549027969230185*^9, 
-  3.5490280290682993`*^9}, {3.549028205873255*^9, 3.549028240896571*^9}, {
-  3.549028430293695*^9, 3.549028515021112*^9}, {3.549029018998356*^9, 
-  3.549029024860697*^9}}],
+ CellChangeTimes->{{3.5490275903694773`*^9, 3.549027724652392*^9}, {
+   3.549027794650572*^9, 3.5490278214166203`*^9}, {3.549028212012147*^9, 
+   3.549028219450778*^9}, {3.549028441524914*^9, 3.54902847858762*^9}, 
+   3.5490285116455927`*^9, {3.549029894899392*^9, 3.549029900756361*^9}}],
 
 Cell["\<\
 Compute approximated value functions \
@@ -312,20 +319,11 @@ Cell[BoxData[{
   3.549029413963666*^9, 3.5490294315774612`*^9}, {3.549029562344293*^9, 
   3.549029562717799*^9}, {3.549029596886016*^9, 3.549029597346496*^9}}],
 
-Cell[BoxData[
- RowBox[{"{", 
-  RowBox[{
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "0", ",", "0", ",", "0"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "0"}], "}"}], ",", 
-   RowBox[{"{", 
-    RowBox[{"1", ",", "1", ",", "0", ",", "0"}], "}"}]}], "}"}]], "Output",
+Cell[BoxData["$Aborted"], "Output",
  CellChangeTimes->{
   3.549029161568347*^9, {3.5490294322593*^9, 3.549029438762245*^9}, {
-   3.549029531322014*^9, 3.549029606690708*^9}}]
+   3.549029531322014*^9, 3.549029606690708*^9}, 3.549029919889906*^9, 
+   3.549029960536203*^9}]
 }, Open  ]],
 
 Cell["\<\
@@ -359,24 +357,25 @@ Cell[1181, 42, 95, 1, 26, "Text"],
 Cell[1279, 45, 230, 6, 27, "Input"],
 Cell[1512, 53, 90, 1, 26, "Text"],
 Cell[1605, 56, 167, 4, 27, "Input"],
-Cell[1775, 62, 200, 4, 26, "Text"],
-Cell[1978, 68, 1583, 41, 148, "Input"],
-Cell[3564, 111, 135, 3, 26, "Text"],
-Cell[3702, 116, 984, 32, 119, "Input"],
-Cell[4689, 150, 210, 6, 26, "Text"],
-Cell[4902, 158, 1132, 31, 58, "Input"],
-Cell[6037, 191, 891, 24, 88, "Input"],
-Cell[6931, 217, 127, 3, 26, "Text"],
-Cell[7061, 222, 521, 15, 27, "Input"],
-Cell[7585, 239, 490, 16, 27, "Input"],
-Cell[8078, 257, 208, 4, 26, "Text"],
-Cell[8289, 263, 913, 25, 73, "Input"],
-Cell[9205, 290, 130, 3, 26, "Text"],
+Cell[1775, 62, 156, 2, 26, "Text"],
+Cell[1934, 66, 339, 8, 27, "Input"],
+Cell[2276, 76, 200, 4, 26, "Text"],
+Cell[2479, 82, 1522, 39, 133, "Input"],
+Cell[4004, 123, 135, 3, 26, "Text"],
+Cell[4142, 128, 984, 32, 119, "Input"],
+Cell[5129, 162, 210, 6, 26, "Text"],
+Cell[5342, 170, 1807, 52, 151, "Input"],
+Cell[7152, 224, 127, 3, 26, "Text"],
+Cell[7282, 229, 521, 15, 27, "Input"],
+Cell[7806, 246, 490, 16, 27, "Input"],
+Cell[8299, 264, 208, 4, 26, "Text"],
+Cell[8510, 270, 913, 25, 73, "Input"],
+Cell[9426, 297, 130, 3, 26, "Text"],
 Cell[CellGroupData[{
-Cell[9360, 297, 620, 15, 43, "Input"],
-Cell[9983, 314, 508, 13, 27, "Output"]
+Cell[9581, 304, 620, 15, 43, "Input"],
+Cell[10204, 321, 222, 4, 27, "Output"]
 }, Open  ]],
-Cell[10506, 330, 258, 5, 26, "Text"]
+Cell[10441, 328, 258, 5, 26, "Text"]
 }
 ]
 *)
