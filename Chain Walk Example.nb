@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     11841,        374]
-NotebookOptionsPosition[     10703,        335]
-NotebookOutlinePosition[     11082,        352]
-CellTagsIndexPosition[     11039,        349]
+NotebookDataLength[     12247,        385]
+NotebookOptionsPosition[     11108,        346]
+NotebookOutlinePosition[     11487,        363]
+CellTagsIndexPosition[     11444,        360]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -72,7 +72,7 @@ Cell[BoxData[
     RowBox[{"l", ",", 
      RowBox[{"Max", "[", "l", "]"}]}], "]"}], "\[LeftDoubleBracket]", 
    RowBox[{"1", ",", "1"}], "\[RightDoubleBracket]"}]}]], "Input",
- CellChangeTimes->{{3.549029933170105*^9, 3.549029972663869*^9}}],
+ CellChangeTimes->{{3.549029933170105*^9, 3.549029978094363*^9}}],
 
 Cell["\<\
 Function to uniformly sample a single (state, action, \
@@ -296,9 +296,10 @@ Cell[BoxData[
   3.549029154735379*^9}}],
 
 Cell["\<\
-Generate 1000 samples and initial policy\
+Generate 50 samples and initial policy\
 \>", "Text",
- CellChangeTimes->{{3.549029366385723*^9, 3.549029379159256*^9}}],
+ CellChangeTimes->{{3.549029366385723*^9, 3.549029379159256*^9}, {
+  3.549030042374784*^9, 3.549030042426588*^9}}],
 
 Cell[CellGroupData[{
 
@@ -319,11 +320,21 @@ Cell[BoxData[{
   3.549029413963666*^9, 3.5490294315774612`*^9}, {3.549029562344293*^9, 
   3.549029562717799*^9}, {3.549029596886016*^9, 3.549029597346496*^9}}],
 
-Cell[BoxData["$Aborted"], "Output",
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "0", ",", "0", ",", "0"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "0", ",", "0"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "0", ",", "0"}], "}"}]}], "}"}]], "Output",
  CellChangeTimes->{
   3.549029161568347*^9, {3.5490294322593*^9, 3.549029438762245*^9}, {
-   3.549029531322014*^9, 3.549029606690708*^9}, 3.549029919889906*^9, 
-   3.549029960536203*^9}]
+   3.549029531322014*^9, 3.549029606690708*^9}, 3.549029919889906*^9, {
+   3.549029960536203*^9, 3.549029986654943*^9}}]
 }, Open  ]],
 
 Cell["\<\
@@ -370,12 +381,12 @@ Cell[7282, 229, 521, 15, 27, "Input"],
 Cell[7806, 246, 490, 16, 27, "Input"],
 Cell[8299, 264, 208, 4, 26, "Text"],
 Cell[8510, 270, 913, 25, 73, "Input"],
-Cell[9426, 297, 130, 3, 26, "Text"],
+Cell[9426, 297, 177, 4, 26, "Text"],
 Cell[CellGroupData[{
-Cell[9581, 304, 620, 15, 43, "Input"],
-Cell[10204, 321, 222, 4, 27, "Output"]
+Cell[9628, 305, 620, 15, 43, "Input"],
+Cell[10251, 322, 580, 14, 27, "Output"]
 }, Open  ]],
-Cell[10441, 328, 258, 5, 26, "Text"]
+Cell[10846, 339, 258, 5, 26, "Text"]
 }
 ]
 *)
