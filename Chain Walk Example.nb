@@ -1,0 +1,384 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     11871,        375]
+NotebookOptionsPosition[     10768,        337]
+NotebookOutlinePosition[     11147,        354]
+CellTagsIndexPosition[     11104,        351]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Transition matrices", "Text",
+ CellChangeTimes->{{3.549029224124382*^9, 3.549029226458191*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"L", "=", 
+   RowBox[{"(", GridBox[{
+      {".9", ".1", "0", "0"},
+      {".9", "0", ".1", "0"},
+      {"0", ".9", "0", ".1"},
+      {"0", "0", ".9", ".1"}
+     }], ")"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"R", "=", 
+   RowBox[{"(", GridBox[{
+      {".1", ".9", "0", "0"},
+      {".1", "0", ".9", "0"},
+      {"0", ".1", "0", ".9"},
+      {"0", "0", ".1", ".9"}
+     }], ")"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.549022043250225*^9, 3.549022133337459*^9}}],
+
+Cell["Reward vector", "Text",
+ CellChangeTimes->{{3.549029230962538*^9, 3.549029234455653*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"reward", "=", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "1", ",", "1", ",", "0"}], "}"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.5490221382529*^9, 3.549022143824712*^9}, 
+   3.54902854084122*^9}],
+
+Cell["Discount", "Text",
+ CellChangeTimes->{{3.549029237170743*^9, 3.549029239176416*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"\[Gamma]", "=", ".9"}], ";"}]], "Input",
+ CellChangeTimes->{{3.549027671380589*^9, 3.549027673602169*^9}, 
+   3.549028542017205*^9}],
+
+Cell["\<\
+Function to uniformly sample a single (state, action, \
+state\[CloseCurlyQuote], reward) vector from the model\
+\>", "Text",
+ CellChangeTimes->{{3.549029246738194*^9, 3.549029271970358*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"sample", ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"mat", ",", "state1", ",", "r", ",", "state2", ",", "action"}], 
+      "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"action", "=", 
+       RowBox[{"RandomChoice", "[", 
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1"}], "}"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      
+      RowBox[{"mat", "=", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"action", "\[Equal]", "0"}], ",", "L", ",", "R"}], "]"}]}], 
+      ";", "\[IndentingNewLine]", 
+      RowBox[{"state1", "=", 
+       RowBox[{"RandomInteger", "[", 
+        RowBox[{"{", 
+         RowBox[{"1", ",", "4"}], "}"}], "]"}]}], ";", "\[IndentingNewLine]", 
+      
+      RowBox[{"state2", "=", 
+       RowBox[{"RandomChoice", "[", 
+        RowBox[{
+         RowBox[{
+         "mat", "\[LeftDoubleBracket]", "state1", "\[RightDoubleBracket]"}], 
+         "\[Rule]", 
+         RowBox[{"{", 
+          RowBox[{"1", ",", "2", ",", "3", ",", "4"}], "}"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"r", "=", 
+       RowBox[{
+       "reward", "\[LeftDoubleBracket]", "state1", 
+        "\[RightDoubleBracket]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"state1", ",", "action", ",", "state2", ",", "r"}], "}"}]}]}], 
+    "\[IndentingNewLine]", "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.549022294935418*^9, 3.549022526709992*^9}, {
+   3.5490278523398733`*^9, 3.5490278532898273`*^9}, 3.549028075313202*^9}],
+
+Cell["\<\
+Basis function vector for state, action pair\
+\>", "Text",
+ CellChangeTimes->{{3.54902928050732*^9, 3.5490292891454487`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"\[Phi]", "[", 
+   RowBox[{"s_", ",", "a_"}], "]"}], ":=", 
+  RowBox[{"(", GridBox[{
+     {
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"a", "\[Equal]", "1"}], ",", "1", ",", "0"}], "]"}]},
+     {
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"a", "\[Equal]", "1"}], ",", "s", ",", "0"}], "]"}]},
+     {
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"a", "\[Equal]", "1"}], ",", 
+        SuperscriptBox["s", "2"], ",", "0"}], "]"}]},
+     {
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"a", "\[Equal]", "0"}], ",", "1", ",", "0"}], "]"}]},
+     {
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"a", "\[Equal]", "0"}], ",", "s", ",", "0"}], "]"}]},
+     {
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"a", "\[Equal]", "0"}], ",", 
+        SuperscriptBox["s", "2"], ",", "0"}], "]"}]}
+    }], ")"}]}]], "Input",
+ CellChangeTimes->{{3.549022540371293*^9, 3.549022624211493*^9}}],
+
+Cell[TextData[{
+ "Functions to compute approximated A and b matrices for LSTD",
+ StyleBox["Q",
+  FontSlant->"Italic"],
+ " algorithm"
+}], "Text",
+ CellChangeTimes->{{3.549029335842011*^9, 3.549029351736511*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"A1", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"state1_", ",", "action_", ",", "state2_", ",", "r_"}], "}"}], 
+    ",", "pol_"}], "]"}], ":=", 
+  RowBox[{
+   RowBox[{"\[Phi]", "[", 
+    RowBox[{"state1", ",", "action"}], "]"}], ".", 
+   RowBox[{"Transpose", "[", 
+    RowBox[{
+     RowBox[{"\[Phi]", "[", 
+      RowBox[{"state1", ",", "action"}], "]"}], "-", 
+     RowBox[{"\[Gamma]", " ", 
+      RowBox[{"\[Phi]", "[", 
+       RowBox[{"state2", ",", 
+        RowBox[{
+        "pol", "\[LeftDoubleBracket]", "state2", "\[RightDoubleBracket]"}]}], 
+       "]"}]}]}], "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"b1", "[", 
+   RowBox[{"{", 
+    RowBox[{"state1_", ",", "action_", ",", "state2_", ",", "r_"}], "}"}], 
+   "]"}], ":=", 
+  RowBox[{
+   RowBox[{"\[Phi]", "[", 
+    RowBox[{"state1", ",", "action"}], "]"}], "r"}]}]}], "Input",
+ CellChangeTimes->{{3.5490275903694773`*^9, 3.549027724652392*^9}, {
+   3.549027794650572*^9, 3.5490278214166203`*^9}, {3.549028212012147*^9, 
+   3.549028219450778*^9}, {3.549028441524914*^9, 3.54902847858762*^9}, 
+   3.5490285116455927`*^9}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"A", "[", 
+   RowBox[{"samples_", ",", "pol_"}], "]"}], ":=", 
+  RowBox[{
+   FractionBox["1", 
+    RowBox[{"Length", "[", "samples", "]"}]], 
+   RowBox[{"Total", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"A1", "[", 
+       RowBox[{"#", ",", "pol"}], "]"}], "&"}], "/@", "samples"}], 
+    "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"b", "[", "samples_", "]"}], ":=", 
+  RowBox[{
+   FractionBox["1", 
+    RowBox[{"Length", "[", "samples", "]"}]], 
+   RowBox[{"Total", "[", 
+    RowBox[{"b1", "/@", "samples"}], "]"}]}]}]}], "Input",
+ CellChangeTimes->{{3.549027728104364*^9, 3.549027774121071*^9}, {
+  3.549027828183531*^9, 3.54902782967936*^9}, {3.549027969230185*^9, 
+  3.5490280290682993`*^9}, {3.549028205873255*^9, 3.549028240896571*^9}, {
+  3.549028430293695*^9, 3.549028515021112*^9}, {3.549029018998356*^9, 
+  3.549029024860697*^9}}],
+
+Cell["\<\
+Compute approximated value functions \
+\>", "Text",
+ CellChangeTimes->{{3.549029388975752*^9, 3.549029405134811*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"q", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"s_", ",", "a_"}], "}"}], ",", "w_"}], "]"}], ":=", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"Transpose", "[", 
+      RowBox[{"\[Phi]", "[", 
+       RowBox[{"s", ",", "a"}], "]"}], "]"}], ".", "w"}], ")"}], 
+   "\[LeftDoubleBracket]", 
+   RowBox[{"1", ",", "1"}], "\[RightDoubleBracket]"}]}]], "Input",
+ CellChangeTimes->{{3.549028638798378*^9, 3.549028725207115*^9}, {
+  3.549028768077819*^9, 3.5490287734693727`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"v", "[", 
+   RowBox[{"s_", ",", "w_"}], "]"}], ":=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"q", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"s", ",", "0"}], "}"}], ",", "w"}], "]"}], ",", 
+    RowBox[{"q", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"s", ",", "1"}], "}"}], ",", "w"}], "]"}]}], "}"}]}]], "Input",\
+
+ CellChangeTimes->{{3.549028774649188*^9, 3.549028830340218*^9}, {
+  3.549029103359393*^9, 3.549029103686928*^9}}],
+
+Cell["\<\
+Perform a single iteration of LSPI with a policy and sample (the policy is \
+explicitly represented for convenience)\
+\>", "Text",
+ CellChangeTimes->{{3.5490294766373863`*^9, 3.549029525820424*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"f", "[", 
+   RowBox[{"pol_", ",", "samples_"}], "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "w1", "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"w1", "=", 
+      RowBox[{
+       RowBox[{"Inverse", "[", 
+        RowBox[{"A", "[", 
+         RowBox[{"samples", ",", "pol"}], "]"}], "]"}], ".", 
+       RowBox[{"b", "[", "samples", "]"}]}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"argmax", "/@", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"v", "[", 
+           RowBox[{"#", ",", "w1"}], "]"}], "&"}], "/@", 
+         RowBox[{"Range", "[", "4", "]"}]}], ")"}]}], "-", "1"}]}]}], 
+   "\[IndentingNewLine]", "]"}]}]], "Input",
+ CellChangeTimes->{{3.5490285715315447`*^9, 3.549028653376129*^9}, {
+  3.549029039760768*^9, 3.549029040224348*^9}, {3.549029072567562*^9, 
+  3.549029154735379*^9}}],
+
+Cell["\<\
+Generate 1000 samples and initial policy\
+\>", "Text",
+ CellChangeTimes->{{3.549029366385723*^9, 3.549029379159256*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"samples", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{"sample", ",", 
+     RowBox[{"{", "50", "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"FixedPointList", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"f", "[", 
+     RowBox[{"#", ",", "samples"}], "]"}], "&"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.549029158666911*^9, 3.5490291608634443`*^9}, {
+  3.549029413963666*^9, 3.5490294315774612`*^9}, {3.549029562344293*^9, 
+  3.549029562717799*^9}, {3.549029596886016*^9, 3.549029597346496*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "0", ",", "0", ",", "0"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "0", ",", "0"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "0", ",", "0"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.549029161568347*^9, {3.5490294322593*^9, 3.549029438762245*^9}, {
+   3.549029531322014*^9, 3.549029606690708*^9}}]
+}, Open  ]],
+
+Cell["\<\
+The final policy is the last vector in this list. It should be (1,1,0,0) to \
+correspond to optimal policy of RRLL.\
+\>", "Text",
+ CellChangeTimes->{{3.549029451335935*^9, 3.5490294691494837`*^9}, {
+  3.549029568355857*^9, 3.5490295792114887`*^9}}]
+},
+WindowSize->{740, 867},
+WindowMargins->{{Automatic, 241}, {Automatic, 55}},
+ShowSelection->True,
+FrontEndVersion->"8.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (February 23, \
+2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 101, 1, 26, "Text"],
+Cell[661, 23, 517, 17, 151, "Input"],
+Cell[1181, 42, 95, 1, 26, "Text"],
+Cell[1279, 45, 230, 6, 27, "Input"],
+Cell[1512, 53, 90, 1, 26, "Text"],
+Cell[1605, 56, 167, 4, 27, "Input"],
+Cell[1775, 62, 200, 4, 26, "Text"],
+Cell[1978, 68, 1583, 41, 148, "Input"],
+Cell[3564, 111, 135, 3, 26, "Text"],
+Cell[3702, 116, 984, 32, 119, "Input"],
+Cell[4689, 150, 210, 6, 26, "Text"],
+Cell[4902, 158, 1132, 31, 58, "Input"],
+Cell[6037, 191, 891, 24, 88, "Input"],
+Cell[6931, 217, 127, 3, 26, "Text"],
+Cell[7061, 222, 521, 15, 27, "Input"],
+Cell[7585, 239, 490, 16, 27, "Input"],
+Cell[8078, 257, 208, 4, 26, "Text"],
+Cell[8289, 263, 913, 25, 73, "Input"],
+Cell[9205, 290, 130, 3, 26, "Text"],
+Cell[CellGroupData[{
+Cell[9360, 297, 620, 15, 43, "Input"],
+Cell[9983, 314, 508, 13, 27, "Output"]
+}, Open  ]],
+Cell[10506, 330, 258, 5, 26, "Text"]
+}
+]
+*)
+
+(* End of internal cache information *)
